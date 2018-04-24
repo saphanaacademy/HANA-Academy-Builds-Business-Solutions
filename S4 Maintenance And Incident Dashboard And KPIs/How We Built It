@@ -1,0 +1,222 @@
+-----------------
+--
+-- video 1
+--
+-----------------
+
+Downloads and instructions for ABAP and HANA tools for Eclipse
+	https://tools.hana.ondemand.com/
+
+Roles for New Development User
+	SAP_BR_ANALYTICS_SPECIALIST
+	SAP_BR_EMPLOYEE 
+	SAP_BR_MAINTENANCE_PLANNER
+	SAP_BR_MAINTENANCE_PLANNER_RSH
+	SAP_BR_MAINTENANCE_TECHNICIAN
+	future: Z role that you create for your dev catalog and catalog group (instructions in later video)
+
+-----------------
+--
+-- video 2
+--
+-----------------
+
+-----------------
+--
+-- video 3
+--
+-----------------
+
+HANA Academy Course on CDS
+	https://www.youtube.com/playlist?list=PLkzo92owKnVxO-jWmOWugBv_9WQiq8wLc
+
+Create a new cds view / data definition in your abap project using the following code:
+
+cds view: 	orcl external data, maintenance
+
+name:		ZXSH_I_OMAINT
+desc:		ocrl external data, private interface view, maintenance	
+syntax:
+
+@AbapCatalog.sqlViewName: 'ZXSH_IOMAINT'
+@AbapCatalog.compiler.compareFilter: false
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'orcl external data, maintenance'
+@Analytics.dataCategory: #DIMENSION               
+@Analytics.dataExtraction.enabled: true 
+@VDM.viewType: #BASIC
+@ObjectModel.representativeKey: 'pmordernumber'
+
+define view ZXSH_I_OMaint as select from zvsh_omaint {
+    // zvsh_omaint, external view of incidents system in oracle
+    key pmordernumber, 
+    ehstype, 
+    ehsnumber,
+    ehsdescription, 
+    ehstime, 
+    ehsupervisorname,
+    ehslocationname, 
+    ehscategory, 
+    ehsdatef, 
+    1 as ehscount,
+    //count of categories: low medium high extreme
+    //separate counts for usage in s4 kpi modeler
+    case
+        when ehscategory = 'Low'
+        or ehscategory = 'Medium'
+            then 1
+            else 0
+        end as ehscatotherscount,
+    case
+        when ehscategory = 'High'
+            then 1
+            else 0
+        end as ehscathighcount,
+    case
+        when ehscategory = 'Extreme'
+            then 1
+            else 0
+        end as ehscatextremecount,                       
+    ehstotalincidents,
+    ehstotalhazards, 
+    ehsactionstofix,    
+    ehsactionsimplementedontime, 
+    ehspercentagecompleted    
+} 
+
+-----------------
+--
+-- video 4
+--
+-----------------
+
+Create 3 new cds views / data definitions in your abap project using the following code:
+
+cds view 1: 	Z Copy Maintenance Order Operation
+
+name:		ZXSH_C_OBJPGMAINTORDEROPZ
+desc:		Maintenace Order Operation	
+syntax:
+
+@AbapCatalog.sqlViewName: 'ZXSH_COPMNTOROPZ'
+@AbapCatalog.compiler.compareFilter: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@ClientHandling.algorithm: #SESSION_VARIABLE
+@EndUserText.label: 'Z Copy Maintenance Order Operation'
+@VDM.viewType: #CONSUMPTION
+
+define view ZXSH_C_ObjPGMaintOrderOpZ
+as select from C_ObjPgMaintOrderOperation {
+    // Z copy of C_ObjPgMaintOrderOperation 
+    key MaintenanceOrder, 
+    MaintenanceOrderOperation, 
+    OperationDescription, 
+    WorkCenter, 
+    WorkCenterText, 
+    Plant, 
+    PlantName, 
+    OperationPlannedWork, 
+    OperationPlannedWorkUnit, 
+    OperationPersonResponsible, 
+    OperationPersonRespName, 
+    MaintenanceOrderType, 
+    OrderTypeName, 
+    OperationDuration, 
+    OperationDurationUnit
+}
+
+cds view 2: 	Z Copy Maintenance Order
+
+name:		ZXSH_C_OBJPGMAINTORDZ
+desc:		Maintenance Order
+syntax:
+
+@AbapCatalog.sqlViewName: 'ZXSHCOBPGMNTORDZ'
+@AbapCatalog.compiler.compareFilter: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@ClientHandling.algorithm: #SESSION_VARIABLE
+@EndUserText.label: 'Z Copy Maintenance Order'
+@VDM.viewType: #CONSUMPTION
+
+define view ZXSH_C_ObjPGMaintOrdZ
+as select from C_ObjPgMaintOrder {
+      MaintenanceOrder,
+      MaintenanceOrderInternalID,
+      MaintenanceOrderDesc, 
+      MaintenanceOrderType,
+      MaintenanceOrderTypeName,
+      MaintenanceProcessingPhase, 
+      MaintenanceProcessingPhaseDesc, 
+      TechnicalObjectLabel,  
+      TechnicalObjectDescription, 
+      TechObjIsEquipOrFuncnlLocDesc,
+      MaintOrdBasicStartDate, 
+      MaintOrdBasicEndDate, 
+      MaintOrdSchedBasicStartDate, 
+      MaintOrdSchedBasicStartTime, 
+      MainWorkCenterPlantName,  
+      CreationDate,              
+      CreatedByUserDescription, 
+      MaintOrderPlanningCodeName,
+      MaintenanceActivityType, 
+      MaintenanceActivityTypeName,      
+      MaintenancePlant,
+      PlantName,
+      AssetLocation,
+      AssetLocationName,
+      PlantSection,
+      PlantSectionPersonRespName,
+      ResponsibleCostCenter,
+      CostCenterName,
+      ProfitCenter,
+      ProfitCenterName,
+      CityName
+}
+
+cds view 3: 	Z Copy Maintenance Order Cost
+
+name:		ZXSH_I_MAINTENANCEORDERCOSTZ
+desc:		Maintenace Order Cost
+syntax:
+
+@AbapCatalog.sqlViewName: 'ZXSH_IMNTORDCSTZ'
+@AbapCatalog.compiler.compareFilter: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@ClientHandling.algorithm: #SESSION_VARIABLE
+@EndUserText.label: 'Z Copy Maintenance Order Cost'
+@VDM.viewType: #BASIC
+
+define view ZXSH_I_MaintenanceOrderCostZ
+as select from I_MaintenanceOrderCost {
+    MaintenanceOrderInternalID, 
+    ControllingAreaCurrency, 
+    ControllingValueType, 
+    FiscalYear, 
+    ValueCategory,     
+    Period00EarnedValInCtrlgArCrcy, 
+    Period01EarnedValInCtrlgArCrcy, 
+    Period02EarnedValInCtrlgArCrcy, 
+    Period03EarnedValInCtrlgArCrcy, 
+    Period04EarnedValInCtrlgArCrcy, 
+    Period05EarnedValInCtrlgArCrcy, 
+    Period06EarnedValInCtrlgArCrcy, 
+    Period07EarnedValInCtrlgArCrcy, 
+    Period08EarnedValInCtrlgArCrcy, 
+    Period09EarnedValInCtrlgArCrcy, 
+    Period10EarnedValInCtrlgArCrcy, 
+    Period11EarnedValInCtrlgArCrcy, 
+    Period12EarnedValInCtrlgArCrcy, 
+    Period13EarnedValInCtrlgArCrcy, 
+    Period14EarnedValInCtrlgArCrcy, 
+    Period15EarnedValInCtrlgArCrcy, 
+    Period16EarnedValInCtrlgArCrcy, 
+    PlanningVersion, 
+    ResultCategory 
+}                  
+  
+  
+-----------------
+--
+-- video ##
+--
+-----------------
