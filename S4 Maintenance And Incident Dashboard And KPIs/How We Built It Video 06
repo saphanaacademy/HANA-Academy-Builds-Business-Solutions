@@ -1,0 +1,1074 @@
+In this video we'll build more three new cds views into our virtual data model and the end goal will be 2 consumption level views. One view will publish an odata service, one view will create a cube, and one view will create an analytic query.
+
+cds view 1: 	
+
+name:		ZXSH_C_XMAINTPLANO 
+desc:		consumption, combined odata with oracle maint plan
+syntax:
+  
+@AbapCatalog.sqlViewName: 'ZXSH_XMAINTPLANO'
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@OData.publish: true
+@EndUserText.label: 'public view, oracle, maint order, plan'
+@VDM.viewType: #CONSUMPTION
+@ObjectModel.representativeKey: 'MaintenanceOrder'
+@ClientHandling.algorithm: #SESSION_VARIABLE
+  
+define view ZXSH_C_XMaintPlanO as select from ZXSH_C_ObjPGMaintOrdZ
+left outer join ZXSH_I_OMaint
+    on ZXSH_I_OMaint.pmordernumber = ZXSH_C_ObjPGMaintOrdZ.MaintenanceOrder 
+left outer join ZXSH_I_MaintOrdCostPA
+    on ZXSH_I_MaintOrdCostPA.MaintenanceOrderInternalID = ZXSH_C_ObjPGMaintOrdZ.MaintenanceOrderInternalID     
+
+{
+    // ZXSH_C_ObjPGMaintOrdZ, Z Copy of C_ObjPgMaintOrder
+    @EndUserText.label: 'Maintenance Order'
+    key ZXSH_C_ObjPGMaintOrdZ.MaintenanceOrder,
+    @EndUserText.label: 'Maintenance Order Type'
+    ZXSH_C_ObjPGMaintOrdZ.MaintenanceOrderType, 
+    @EndUserText.label: 'Maintenance Order Type Name'
+    ZXSH_C_ObjPGMaintOrdZ.MaintenanceOrderTypeName,
+    @EndUserText.label: 'Maintenance Processing Phase'
+    ZXSH_C_ObjPGMaintOrdZ.MaintenanceProcessingPhase, 
+    @EndUserText.label: 'Maintenance Processing Phase Desc'
+    ZXSH_C_ObjPGMaintOrdZ.MaintenanceProcessingPhaseDesc,
+    @EndUserText.label: 'Technical Object Label'
+    ZXSH_C_ObjPGMaintOrdZ.TechnicalObjectLabel,
+    @EndUserText.label: 'Technical Object Description'
+    ZXSH_C_ObjPGMaintOrdZ.TechnicalObjectDescription,
+    @EndUserText.label: 'Maint Order Basic Start Date'
+    ZXSH_C_ObjPGMaintOrdZ.MaintOrdBasicStartDate,
+    @EndUserText.label: 'Maint Order Basic End Date'
+    ZXSH_C_ObjPGMaintOrdZ.MaintOrdBasicEndDate,
+    @EndUserText.label: 'Maint Order Creation Date'
+    ZXSH_C_ObjPGMaintOrdZ.CreationDate,
+    @EndUserText.label: 'Maintenance Activity Type'
+    ZXSH_C_ObjPGMaintOrdZ.MaintenanceActivityType,
+    @EndUserText.label: 'Maintenance Activity Type Name'
+    ZXSH_C_ObjPGMaintOrdZ.MaintenanceActivityTypeName, 
+    @EndUserText.label: 'Maintenance Asset Location'
+    ZXSH_C_ObjPGMaintOrdZ.AssetLocation, 
+    @EndUserText.label: 'Maintenance Asset Location Name'
+    ZXSH_C_ObjPGMaintOrdZ.AssetLocationName, 
+    @EndUserText.label: 'Maintenance Plant Section'
+    ZXSH_C_ObjPGMaintOrdZ.PlantSection, 
+    @EndUserText.label: 'Plant Section Person Responsible'
+    ZXSH_C_ObjPGMaintOrdZ.PlantSectionPersonRespName,
+    @EndUserText.label: 'Maintenance City Name' 
+    ZXSH_C_ObjPGMaintOrdZ.CityName, 
+   
+    // ZXSH_I_OXMaint, interface view based on external incidents data
+    @EndUserText.label: 'Supervisor Name'
+    ZXSH_I_OMaint.ehsupervisorname,
+    @EndUserText.label: 'Location Name'
+    ZXSH_I_OMaint.ehslocationname,
+    @EndUserText.label: 'EHS Category'
+    @Semantics.text
+    ZXSH_I_OMaint.ehscategory, 
+    @EndUserText.label: 'EHS Total Incidents'
+    @DefaultAggregation: #SUM    
+    ZXSH_I_OMaint.ehstotalincidents,
+    @EndUserText.label: 'EHS Hazards'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_OMaint.ehstotalhazards, 
+    @EndUserText.label: 'EHS Actions to Fix'  
+    ZXSH_I_OMaint.ehsactionstofix,
+    @EndUserText.label: 'EHS Actions Implemented on Time'
+    @DefaultAggregation: #SUM     
+    ZXSH_I_OMaint.ehsactionsimplementedontime, 
+    @EndUserText.label: 'EHS Percentage Completed'
+    @DefaultAggregation: #MAX
+    ZXSH_I_OMaint.ehspercentagecompleted,  
+    @EndUserText.label: 'Number of Issues'
+    @DefaultAggregation: #SUM
+    ZXSH_I_OMaint.ehscount,
+    @EndUserText.label: 'Low to Medium Severity'
+    @DefaultAggregation: #SUM
+    ZXSH_I_OMaint.ehscatotherscount,
+    @EndUserText.label: 'High Severity'
+    @DefaultAggregation: #SUM
+    ZXSH_I_OMaint.ehscathighcount,
+    @EndUserText.label: 'Extreme Severity'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_OMaint.ehscatextremecount, 
+          
+    // ZXSH_I_MaintOrdCostPA, aggregated and pivoted data original to Z copy of I_MaintenanceOrderCost
+    @EndUserText.label: 'Fiscal Year'
+    ZXSH_I_MaintOrdCostPA.FiscalYear, 
+    @EndUserText.label: 'P00 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P00EVCACActual,
+    @EndUserText.label: 'P00 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P00EVCACPlan,
+    @EndUserText.label: 'P00 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P00EVCACActual - ZXSH_I_MaintOrdCostPA.P00EVCACPlan as P00EVCACVariance,
+    @EndUserText.label: 'P00 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P00EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P00EVCACActual - ZXSH_I_MaintOrdCostPA.P00EVCACPlan), ZXSH_I_MaintOrdCostPA.P00EVCACPlan, 2) * 100
+        else 0
+    end  as P00EVCACVariancePct,
+    @EndUserText.label: 'P01 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P01EVCACActual, 
+    @EndUserText.label: 'P01 Plan'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P01EVCACPlan,
+    @EndUserText.label: 'P01 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P01EVCACActual - ZXSH_I_MaintOrdCostPA.P01EVCACPlan as P01EVCACVariance,
+    @EndUserText.label: 'P01 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P01EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P01EVCACActual - ZXSH_I_MaintOrdCostPA.P01EVCACPlan), ZXSH_I_MaintOrdCostPA.P01EVCACPlan, 2) * 100
+        else 0
+    end  as P01EVCACVariancePct,
+    @EndUserText.label: 'P02 Actual'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P02EVCACActual,
+    @EndUserText.label: 'P02 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P02EVCACPlan, 
+    @EndUserText.label: 'P02 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P02EVCACActual - ZXSH_I_MaintOrdCostPA.P02EVCACPlan as P02EVCACVariance,
+    @EndUserText.label: 'P02 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P02EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P02EVCACActual - ZXSH_I_MaintOrdCostPA.P02EVCACPlan), ZXSH_I_MaintOrdCostPA.P02EVCACPlan, 2) * 100
+        else 0
+    end  as P02EVCACVariancePct,
+    @EndUserText.label: 'P03 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P03EVCACActual, 
+    @EndUserText.label: 'P03 Plan'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P03EVCACPlan,
+    @EndUserText.label: 'P03 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P03EVCACActual - ZXSH_I_MaintOrdCostPA.P03EVCACPlan as P03EVCACVariance,
+    @EndUserText.label: 'P03 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P03EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P03EVCACActual - ZXSH_I_MaintOrdCostPA.P03EVCACPlan), ZXSH_I_MaintOrdCostPA.P03EVCACPlan, 2) * 100
+        else 0
+    end  as P03EVCACVariancePct, 
+    @EndUserText.label: 'P04 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P04EVCACActual, 
+    @EndUserText.label: 'P04 Plan'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P04EVCACPlan,
+    @EndUserText.label: 'P04 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P04EVCACActual - ZXSH_I_MaintOrdCostPA.P04EVCACPlan as P04EVCACVariance, 
+    @EndUserText.label: 'P04 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P04EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P04EVCACActual - ZXSH_I_MaintOrdCostPA.P04EVCACPlan), ZXSH_I_MaintOrdCostPA.P04EVCACPlan, 2) * 100
+        else 0
+    end  as P04EVCACVariancePct,
+    @EndUserText.label: 'P05 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P05EVCACActual,
+    @EndUserText.label: 'P05 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P05EVCACPlan, 
+    @EndUserText.label: 'P05 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P05EVCACActual - ZXSH_I_MaintOrdCostPA.P05EVCACPlan as P05EVCACVariance,
+    @EndUserText.label: 'P05 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P05EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P05EVCACActual - ZXSH_I_MaintOrdCostPA.P05EVCACPlan), ZXSH_I_MaintOrdCostPA.P05EVCACPlan, 2) * 100
+        else 0
+    end  as P05EVCACVariancePct,
+    @EndUserText.label: '06 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P06EVCACActual,
+    @EndUserText.label: 'P06 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P06EVCACPlan,
+    @EndUserText.label: 'P06 Variance'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P06EVCACActual - ZXSH_I_MaintOrdCostPA.P06EVCACPlan as P06EVCACVariance,
+    @EndUserText.label: 'P06 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P06EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P06EVCACActual - ZXSH_I_MaintOrdCostPA.P06EVCACPlan), ZXSH_I_MaintOrdCostPA.P06EVCACPlan, 2) * 100
+        else 0
+    end  as P06EVCACVariancePct,
+    @EndUserText.label: 'P07 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P07EVCACActual,
+    @EndUserText.label: 'P07 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P07EVCACPlan, 
+    @EndUserText.label: 'P07 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P07EVCACActual - ZXSH_I_MaintOrdCostPA.P07EVCACPlan as P07EVCACVariance,
+    @EndUserText.label: 'P07 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P07EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P07EVCACActual - ZXSH_I_MaintOrdCostPA.P07EVCACPlan), ZXSH_I_MaintOrdCostPA.P07EVCACPlan, 2) * 100
+        else 0
+    end  as P07EVCACVariancePct,
+    @EndUserText.label: 'P08 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P08EVCACActual, 
+    @EndUserText.label: 'P08 Plan'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P08EVCACPlan, 
+    @EndUserText.label: 'P08 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P08EVCACActual - ZXSH_I_MaintOrdCostPA.P08EVCACPlan as P08EVCACVariance,
+    @EndUserText.label: 'P08 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P08EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P08EVCACActual - ZXSH_I_MaintOrdCostPA.P08EVCACPlan), ZXSH_I_MaintOrdCostPA.P08EVCACPlan, 2) * 100
+        else 0
+    end  as P08EVCACVariancePct,
+    @EndUserText.label: 'P09 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P09EVCACActual,
+    @EndUserText.label: 'P09## Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P09EVCACPlan, 
+    @EndUserText.label: 'P09 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P09EVCACActual - ZXSH_I_MaintOrdCostPA.P09EVCACPlan as P09EVCACVariance,
+    @EndUserText.label: 'P09 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P09EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P09EVCACActual - ZXSH_I_MaintOrdCostPA.P09EVCACPlan), ZXSH_I_MaintOrdCostPA.P09EVCACPlan, 2) * 100
+        else 0
+    end  as P09EVCACVariancePct,
+    @EndUserText.label: 'P10 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P10EVCACActual,
+    @EndUserText.label: 'P10 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P10EVCACPlan, 
+    @EndUserText.label: 'P10 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P10EVCACActual - ZXSH_I_MaintOrdCostPA.P10EVCACPlan as P10EVCACVariance,
+    @EndUserText.label: 'P10 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P10EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P10EVCACActual - ZXSH_I_MaintOrdCostPA.P10EVCACPlan), ZXSH_I_MaintOrdCostPA.P10EVCACPlan, 2) * 100
+        else 0
+    end  as P10EVCACVariancePct,
+    @EndUserText.label: 'P11 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P11EVCACActual, 
+    @EndUserText.label: 'P11 Plan'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P11EVCACPlan, 
+    @EndUserText.label: 'P11 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P11EVCACActual - ZXSH_I_MaintOrdCostPA.P11EVCACPlan as P11EVCACVariance,
+    @EndUserText.label: 'P11 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P11EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P11EVCACActual - ZXSH_I_MaintOrdCostPA.P11EVCACPlan), ZXSH_I_MaintOrdCostPA.P11EVCACPlan, 2)*100
+        else 0
+    end  as P11EVCACVariancePct,
+    @EndUserText.label: 'P12 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P12EVCACActual,
+    @EndUserText.label: 'P12 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P12EVCACPlan, 
+    @EndUserText.label: 'P12 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P12EVCACActual - ZXSH_I_MaintOrdCostPA.P12EVCACPlan as P12EVCACVariance,
+    @EndUserText.label: 'P12 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P12EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P12EVCACActual - ZXSH_I_MaintOrdCostPA.P12EVCACPlan), ZXSH_I_MaintOrdCostPA.P12EVCACPlan, 2) * 120
+        else 0
+    end  as P12EVCACVariancePct,
+    @EndUserText.label: 'P13 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P13EVCACActual,
+    @EndUserText.label: 'P13 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P13EVCACPlan, 
+    @EndUserText.label: 'P13 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P13EVCACActual - ZXSH_I_MaintOrdCostPA.P13EVCACPlan as P13EVCACVariance,
+    @EndUserText.label: 'P13 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P13EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P13EVCACActual - ZXSH_I_MaintOrdCostPA.P13EVCACPlan), ZXSH_I_MaintOrdCostPA.P13EVCACPlan, 2) * 130
+        else 0
+    end  as P13EVCACVariancePct,
+    @EndUserText.label: 'P14 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P14EVCACActual,
+    @EndUserText.label: 'P14 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P14EVCACPlan, 
+    @EndUserText.label: 'P14 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P14EVCACActual - ZXSH_I_MaintOrdCostPA.P14EVCACPlan as P14EVCACVariance,
+    @EndUserText.label: 'P14 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P14EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P14EVCACActual - ZXSH_I_MaintOrdCostPA.P14EVCACPlan), ZXSH_I_MaintOrdCostPA.P14EVCACPlan, 2) * 140
+        else 0
+    end  as P14EVCACVariancePct,
+    @EndUserText.label: 'P15 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P15EVCACActual,
+    @EndUserText.label: 'P15 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P15EVCACPlan, 
+    @EndUserText.label: 'P15 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P15EVCACActual - ZXSH_I_MaintOrdCostPA.P15EVCACPlan as P15EVCACVariance,
+    @EndUserText.label: 'P15 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P15EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P15EVCACActual - ZXSH_I_MaintOrdCostPA.P15EVCACPlan), ZXSH_I_MaintOrdCostPA.P15EVCACPlan, 2) * 150
+        else 0
+    end  as P15EVCACVariancePct,
+    @EndUserText.label: 'P16 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P16EVCACActual, 
+    @EndUserText.label: 'P16 Plan'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P16EVCACPlan,
+    @EndUserText.label: 'P16 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P16EVCACActual - ZXSH_I_MaintOrdCostPA.P16EVCACPlan as P16EVCACVariance,
+    @EndUserText.label: 'P16 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P16EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P16EVCACActual - ZXSH_I_MaintOrdCostPA.P16EVCACPlan), ZXSH_I_MaintOrdCostPA.P16EVCACPlan, 2) * 160
+        else 0
+    end  as P16EVCACVariancePct,
+    @EndUserText.label: 'All Periods Actual'
+    @DefaultAggregation: #SUM
+    (
+      ZXSH_I_MaintOrdCostPA.P00EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P01EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P02EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P03EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P04EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P05EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P06EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P07EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P08EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P09EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P10EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P11EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P12EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P13EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P14EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P15EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P16EVCACActual
+     ) as AllPActual,
+     @EndUserText.label: 'All Periods Plan'
+     @DefaultAggregation: #SUM
+     (
+      ZXSH_I_MaintOrdCostPA.P00EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P01EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P02EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P03EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P04EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P05EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P06EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P07EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P08EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P09EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P10EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P11EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P12EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P13EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P14EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P15EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P16EVCACPlan
+     ) as AllPPlan,
+     @EndUserText.label: 'All Periods Variance'
+     @DefaultAggregation: #SUM
+     (
+      ZXSH_I_MaintOrdCostPA.P00EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P01EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P02EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P03EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P04EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P05EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P06EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P07EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P08EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P09EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P10EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P11EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P12EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P13EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P14EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P15EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P16EVCACActual -
+      ZXSH_I_MaintOrdCostPA.P00EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P01EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P02EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P03EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P04EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P05EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P06EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P07EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P08EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P09EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P10EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P11EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P12EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P13EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P14EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P15EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P16EVCACPlan
+     ) as AllPVariance
+
+}
+
+cds view 2: 	
+
+name:		ZXSH_C_XMAINTPLANC 
+desc:		interface, combined cube, with oracle maint plan
+syntax:
+
+@AbapCatalog.sqlViewName: 'ZXSH_IXMNTPLANC'
+@AbapCatalog.compiler.compareFilter: false
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'combined cube with orcl, maint ord, plan'
+@Analytics.dataCategory: #CUBE               
+@Analytics.dataExtraction.enabled: true 
+@VDM.viewType: #BASIC
+@ObjectModel.representativeKey: 'MaintenanceOrder'
+@ClientHandling.algorithm: #SESSION_VARIABLE
+
+define view ZXSH_I_XMaintPlanC as select distinct from ZXSH_C_ObjPGMaintOrdZ
+left outer join ZXSH_C_ObjPGMaintOrderOpZ
+    on ZXSH_C_ObjPGMaintOrderOpZ.MaintenanceOrder = ZXSH_C_ObjPGMaintOrdZ.MaintenanceOrder
+left outer join ZXSH_I_OMaint
+    on ZXSH_I_OMaint.pmordernumber = ZXSH_C_ObjPGMaintOrdZ.MaintenanceOrder 
+left outer join ZXSH_I_MaintOrdCostPA
+    on ZXSH_I_MaintOrdCostPA.MaintenanceOrderInternalID = ZXSH_C_ObjPGMaintOrdZ.MaintenanceOrderInternalID  
+ 
+{
+    // ZXSH_C_ObjPGMaintOrdZ, Z Copy of C_ObjPgMaintOrder
+    @EndUserText.label: 'Order Number'
+    key ZXSH_C_ObjPGMaintOrdZ.MaintenanceOrder,
+    @EndUserText.label: 'Order Type'
+    ZXSH_C_ObjPGMaintOrdZ.MaintenanceOrderType,
+    @EndUserText.label: 'Order Type Name' 
+    ZXSH_C_ObjPGMaintOrdZ.MaintenanceOrderTypeName,
+    @EndUserText.label: 'Processing Phase'
+    ZXSH_C_ObjPGMaintOrdZ.MaintenanceProcessingPhase,
+    @EndUserText.label: 'Processing Phase Description' 
+    ZXSH_C_ObjPGMaintOrdZ.MaintenanceProcessingPhaseDesc,
+    @EndUserText.label: 'Technical Object Label'
+    ZXSH_C_ObjPGMaintOrdZ.TechnicalObjectLabel,
+    @EndUserText.label: 'Technical Object Label Description'
+    ZXSH_C_ObjPGMaintOrdZ.TechnicalObjectDescription,
+    @EndUserText.label: 'Order Basic Start Date'
+    ZXSH_C_ObjPGMaintOrdZ.MaintOrdBasicStartDate,
+    @EndUserText.label: 'Order Basic End Date'
+    ZXSH_C_ObjPGMaintOrdZ.MaintOrdBasicEndDate,
+    @EndUserText.label: 'Creation Date'
+    ZXSH_C_ObjPGMaintOrdZ.CreationDate,
+    @EndUserText.label: 'Activity Type'
+    ZXSH_C_ObjPGMaintOrdZ.MaintenanceActivityType,
+    @EndUserText.label: 'Activity Type Name'
+    ZXSH_C_ObjPGMaintOrdZ.MaintenanceActivityTypeName, 
+    @EndUserText.label: 'Asset Location'
+    ZXSH_C_ObjPGMaintOrdZ.AssetLocation, 
+    @EndUserText.label: 'Asset Location Name'
+    ZXSH_C_ObjPGMaintOrdZ.AssetLocationName, 
+    @EndUserText.label: 'Plant Section'
+    ZXSH_C_ObjPGMaintOrdZ.PlantSection, 
+    @EndUserText.label: 'Plant Section Person Responsible'
+    ZXSH_C_ObjPGMaintOrdZ.PlantSectionPersonRespName, 
+    @EndUserText.label: 'Plant City Name'
+    ZXSH_C_ObjPGMaintOrdZ.CityName, 
+    
+    //zvsh_omaint
+    @EndUserText.label: 'Order Number' 
+    ZXSH_I_OMaint.pmordernumber,
+    @EndUserText.label: 'Type' 
+    ZXSH_I_OMaint.ehstype, 
+    @EndUserText.label: 'EHS Number'
+    ZXSH_I_OMaint.ehsnumber,
+    @Semantics.text 
+    @EndUserText.label: 'Description'
+    ZXSH_I_OMaint.ehsdescription,
+    @EndUserText.label: 'Time' 
+    ZXSH_I_OMaint.ehstime, 
+    @EndUserText.label: 'Supervisor'
+    ZXSH_I_OMaint.ehsupervisorname,
+    @EndUserText.label: 'Location'
+    ZXSH_I_OMaint.ehslocationname,
+    @EndUserText.label: 'Category' 
+    ZXSH_I_OMaint.ehscategory,
+    @EndUserText.label: 'Date' 
+    ZXSH_I_OMaint.ehsdatef, 
+    @EndUserText.label: 'Total Issues'
+    @DefaultAggregation: #SUM
+    1 as ehscount,
+    @EndUserText.label: 'Incidents'
+    @DefaultAggregation: #SUM
+    ZXSH_I_OMaint.ehstotalincidents,
+    @DefaultAggregation: #SUM
+    @EndUserText.label: 'Hazards'
+    ZXSH_I_OMaint.ehstotalhazards, 
+    @EndUserText.label: 'Actions to Fix'
+    @DefaultAggregation: #SUM
+    ZXSH_I_OMaint.ehsactionstofix,
+    @EndUserText.label: 'Implemented On Time'  
+    @DefaultAggregation: #SUM  
+    ZXSH_I_OMaint.ehsactionsimplementedontime,
+    @EndUserText.label: 'Percent Completed' 
+    @DefaultAggregation: #MIN
+    ZXSH_I_OMaint.ehspercentagecompleted,
+    
+    // ZXSH_I_MaintOrdCostPA, aggregated and pivoted data original to C_ObjPgMaintOrderOperation 
+    ZXSH_I_MaintOrdCostPA.FiscalYear, 
+    ZXSH_I_MaintOrdCostPA.MaintenanceOrderInternalID, 
+    
+    @EndUserText.label: 'P00 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P00EVCACActual,
+    @EndUserText.label: 'P00 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P00EVCACPlan,
+    @EndUserText.label: 'P00 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P00EVCACActual - ZXSH_I_MaintOrdCostPA.P00EVCACPlan as P00EVCACVariance,
+    @EndUserText.label: 'P00 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P00EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P00EVCACActual - ZXSH_I_MaintOrdCostPA.P00EVCACPlan), ZXSH_I_MaintOrdCostPA.P00EVCACPlan, 2) * 100
+        else 0
+    end  as P00EVCACVariancePct,
+    @EndUserText.label: 'P01 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P01EVCACActual, 
+    @EndUserText.label: 'P01 Plan'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P01EVCACPlan,
+    @EndUserText.label: 'P01 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P01EVCACActual - ZXSH_I_MaintOrdCostPA.P01EVCACPlan as P01EVCACVariance,
+    @EndUserText.label: 'P01 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P01EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P01EVCACActual - ZXSH_I_MaintOrdCostPA.P01EVCACPlan), ZXSH_I_MaintOrdCostPA.P01EVCACPlan, 2) * 100
+        else 0
+    end  as P01EVCACVariancePct,
+    @EndUserText.label: 'P02 Actual'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P02EVCACActual,
+    @EndUserText.label: 'P02 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P02EVCACPlan, 
+    @EndUserText.label: 'P02 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P02EVCACActual - ZXSH_I_MaintOrdCostPA.P02EVCACPlan as P02EVCACVariance,
+    @EndUserText.label: 'P02 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P02EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P02EVCACActual - ZXSH_I_MaintOrdCostPA.P02EVCACPlan), ZXSH_I_MaintOrdCostPA.P02EVCACPlan, 2) * 100
+        else 0
+    end  as P02EVCACVariancePct,
+    @EndUserText.label: 'P03 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P03EVCACActual, 
+    @EndUserText.label: 'P03 Plan'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P03EVCACPlan,
+    @EndUserText.label: 'P03 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P03EVCACActual - ZXSH_I_MaintOrdCostPA.P03EVCACPlan as P03EVCACVariance,
+    @EndUserText.label: 'P03 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P03EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P03EVCACActual - ZXSH_I_MaintOrdCostPA.P03EVCACPlan), ZXSH_I_MaintOrdCostPA.P03EVCACPlan, 2) * 100
+        else 0
+    end  as P03EVCACVariancePct, 
+    @EndUserText.label: 'P04 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P04EVCACActual, 
+    @EndUserText.label: 'P04 Plan'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P04EVCACPlan,
+    @EndUserText.label: 'P04 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P04EVCACActual - ZXSH_I_MaintOrdCostPA.P04EVCACPlan as P04EVCACVariance, 
+    @EndUserText.label: 'P04 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P04EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P04EVCACActual - ZXSH_I_MaintOrdCostPA.P04EVCACPlan), ZXSH_I_MaintOrdCostPA.P04EVCACPlan, 2) * 100
+        else 0
+    end  as P04EVCACVariancePct,
+    @EndUserText.label: 'P05 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P05EVCACActual,
+    @EndUserText.label: 'P05 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P05EVCACPlan, 
+    @EndUserText.label: 'P05 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P05EVCACActual - ZXSH_I_MaintOrdCostPA.P05EVCACPlan as P05EVCACVariance,
+    @EndUserText.label: 'P05 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P05EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P05EVCACActual - ZXSH_I_MaintOrdCostPA.P05EVCACPlan), ZXSH_I_MaintOrdCostPA.P05EVCACPlan, 2) * 100
+        else 0
+    end  as P05EVCACVariancePct,
+    @EndUserText.label: '06 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P06EVCACActual,
+    @EndUserText.label: 'P06 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P06EVCACPlan,
+    @EndUserText.label: 'P06 Variance'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P06EVCACActual - ZXSH_I_MaintOrdCostPA.P06EVCACPlan as P06EVCACVariance,
+    @EndUserText.label: 'P06 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P06EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P06EVCACActual - ZXSH_I_MaintOrdCostPA.P06EVCACPlan), ZXSH_I_MaintOrdCostPA.P06EVCACPlan, 2) * 100
+        else 0
+    end  as P06EVCACVariancePct,
+    @EndUserText.label: 'P07 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P07EVCACActual,
+    @EndUserText.label: 'P07 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P07EVCACPlan, 
+    @EndUserText.label: 'P07 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P07EVCACActual - ZXSH_I_MaintOrdCostPA.P07EVCACPlan as P07EVCACVariance,
+    @EndUserText.label: 'P07 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P07EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P07EVCACActual - ZXSH_I_MaintOrdCostPA.P07EVCACPlan), ZXSH_I_MaintOrdCostPA.P07EVCACPlan, 2) * 100
+        else 0
+    end  as P07EVCACVariancePct,
+    @EndUserText.label: 'P08 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P08EVCACActual, 
+    @EndUserText.label: 'P08 Plan'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P08EVCACPlan, 
+    @EndUserText.label: 'P08 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P08EVCACActual - ZXSH_I_MaintOrdCostPA.P08EVCACPlan as P08EVCACVariance,
+    @EndUserText.label: 'P08 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P08EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P08EVCACActual - ZXSH_I_MaintOrdCostPA.P08EVCACPlan), ZXSH_I_MaintOrdCostPA.P08EVCACPlan, 2) * 100
+        else 0
+    end  as P08EVCACVariancePct,
+    @EndUserText.label: 'P09 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P09EVCACActual,
+    @EndUserText.label: 'P09## Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P09EVCACPlan, 
+    @EndUserText.label: 'P09 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P09EVCACActual - ZXSH_I_MaintOrdCostPA.P09EVCACPlan as P09EVCACVariance,
+    @EndUserText.label: 'P09 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P09EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P09EVCACActual - ZXSH_I_MaintOrdCostPA.P09EVCACPlan), ZXSH_I_MaintOrdCostPA.P09EVCACPlan, 2) * 100
+        else 0
+    end  as P09EVCACVariancePct,
+    @EndUserText.label: 'P10 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P10EVCACActual,
+    @EndUserText.label: 'P10 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P10EVCACPlan, 
+    @EndUserText.label: 'P10 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P10EVCACActual - ZXSH_I_MaintOrdCostPA.P10EVCACPlan as P10EVCACVariance,
+    @EndUserText.label: 'P10 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P10EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P10EVCACActual - ZXSH_I_MaintOrdCostPA.P10EVCACPlan), ZXSH_I_MaintOrdCostPA.P10EVCACPlan, 2) * 100
+        else 0
+    end  as P10EVCACVariancePct,
+    @EndUserText.label: 'P11 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P11EVCACActual, 
+    @EndUserText.label: 'P11 Plan'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P11EVCACPlan, 
+    @EndUserText.label: 'P11 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P11EVCACActual - ZXSH_I_MaintOrdCostPA.P11EVCACPlan as P11EVCACVariance,
+    @EndUserText.label: 'P11 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P11EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P11EVCACActual - ZXSH_I_MaintOrdCostPA.P11EVCACPlan), ZXSH_I_MaintOrdCostPA.P11EVCACPlan, 2)*100
+        else 0
+    end  as P11EVCACVariancePct,
+    @EndUserText.label: 'P12 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P12EVCACActual,
+    @EndUserText.label: 'P12 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P12EVCACPlan, 
+    @EndUserText.label: 'P12 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P12EVCACActual - ZXSH_I_MaintOrdCostPA.P12EVCACPlan as P12EVCACVariance,
+    @EndUserText.label: 'P12 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P12EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P12EVCACActual - ZXSH_I_MaintOrdCostPA.P12EVCACPlan), ZXSH_I_MaintOrdCostPA.P12EVCACPlan, 2) * 120
+        else 0
+    end  as P12EVCACVariancePct,
+    @EndUserText.label: 'P13 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P13EVCACActual,
+    @EndUserText.label: 'P13 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P13EVCACPlan, 
+    @EndUserText.label: 'P13 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P13EVCACActual - ZXSH_I_MaintOrdCostPA.P13EVCACPlan as P13EVCACVariance,
+    @EndUserText.label: 'P13 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P13EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P13EVCACActual - ZXSH_I_MaintOrdCostPA.P13EVCACPlan), ZXSH_I_MaintOrdCostPA.P13EVCACPlan, 2) * 130
+        else 0
+    end  as P13EVCACVariancePct,
+    @EndUserText.label: 'P14 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P14EVCACActual,
+    @EndUserText.label: 'P14 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P14EVCACPlan, 
+    @EndUserText.label: 'P14 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P14EVCACActual - ZXSH_I_MaintOrdCostPA.P14EVCACPlan as P14EVCACVariance,
+    @EndUserText.label: 'P14 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P14EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P14EVCACActual - ZXSH_I_MaintOrdCostPA.P14EVCACPlan), ZXSH_I_MaintOrdCostPA.P14EVCACPlan, 2) * 140
+        else 0
+    end  as P14EVCACVariancePct,
+    @EndUserText.label: 'P15 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P15EVCACActual,
+    @EndUserText.label: 'P15 Plan'
+    @DefaultAggregation: #SUM 
+    ZXSH_I_MaintOrdCostPA.P15EVCACPlan, 
+    @EndUserText.label: 'P15 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P15EVCACActual - ZXSH_I_MaintOrdCostPA.P15EVCACPlan as P15EVCACVariance,
+    @EndUserText.label: 'P15 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P15EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P15EVCACActual - ZXSH_I_MaintOrdCostPA.P15EVCACPlan), ZXSH_I_MaintOrdCostPA.P15EVCACPlan, 2) * 150
+        else 0
+    end  as P15EVCACVariancePct,
+    @EndUserText.label: 'P16 Actual'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P16EVCACActual, 
+    @EndUserText.label: 'P16 Plan'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P16EVCACPlan,
+    @EndUserText.label: 'P16 Variance'
+    @DefaultAggregation: #SUM
+    ZXSH_I_MaintOrdCostPA.P16EVCACActual - ZXSH_I_MaintOrdCostPA.P16EVCACPlan as P16EVCACVariance,
+    @EndUserText.label: 'P16 Variance%'
+    @DefaultAggregation: #MAX
+    case 
+        when ZXSH_I_MaintOrdCostPA.P16EVCACPlan > 0
+        then division((ZXSH_I_MaintOrdCostPA.P16EVCACActual - ZXSH_I_MaintOrdCostPA.P16EVCACPlan), ZXSH_I_MaintOrdCostPA.P16EVCACPlan, 2) * 160
+        else 0
+    end  as P16EVCACVariancePct,
+    
+    @EndUserText.label: 'All Periods Actual'
+    @DefaultAggregation: #SUM
+    (
+      ZXSH_I_MaintOrdCostPA.P00EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P01EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P02EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P03EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P04EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P05EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P06EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P07EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P08EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P09EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P10EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P11EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P12EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P13EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P14EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P15EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P16EVCACActual
+     ) as AllPActual,
+     @EndUserText.label: 'All Periods Plan'
+     @DefaultAggregation: #SUM
+     (
+      ZXSH_I_MaintOrdCostPA.P00EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P01EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P02EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P03EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P04EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P05EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P06EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P07EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P08EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P09EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P10EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P11EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P12EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P13EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P14EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P15EVCACPlan +
+      ZXSH_I_MaintOrdCostPA.P16EVCACPlan
+     ) as AllPPlan,
+     @EndUserText.label: 'All Periods Variance'
+     @DefaultAggregation: #SUM
+     (
+      ZXSH_I_MaintOrdCostPA.P00EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P01EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P02EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P03EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P04EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P05EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P06EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P07EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P08EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P09EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P10EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P11EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P12EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P13EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P14EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P15EVCACActual +
+      ZXSH_I_MaintOrdCostPA.P16EVCACActual -
+      ZXSH_I_MaintOrdCostPA.P00EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P01EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P02EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P03EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P04EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P05EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P06EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P07EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P08EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P09EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P10EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P11EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P12EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P13EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P14EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P15EVCACPlan -
+      ZXSH_I_MaintOrdCostPA.P16EVCACPlan
+     ) as AllPVariance,
+    
+    
+    // ZXSH_C_OBJPGMAINTORDEROPERATN, Z Copy of C_ObjPgMaintOrderOperation  
+    //ZXSH_C_ObjPGMaintOrderOpZ.MaintenanceOrder, 
+    @EndUserText.label: 'Maintenance Order Operation'
+    ZXSH_C_ObjPGMaintOrderOpZ.MaintenanceOrderOperation, 
+    @EndUserText.label: 'Order Operation Description'
+    ZXSH_C_ObjPGMaintOrderOpZ.OperationDescription, 
+    @EndUserText.label: 'Work Center'
+    ZXSH_C_ObjPGMaintOrderOpZ.WorkCenter, 
+    @EndUserText.label: 'Work Center Text'
+    ZXSH_C_ObjPGMaintOrderOpZ.WorkCenterText, 
+    @EndUserText.label: 'Plant'
+    ZXSH_C_ObjPGMaintOrderOpZ.Plant, 
+    @EndUserText.label: 'Plant Name'
+    ZXSH_C_ObjPGMaintOrderOpZ.PlantName, 
+    @EndUserText.label: 'Operation Planned Work'
+    ZXSH_C_ObjPGMaintOrderOpZ.OperationPlannedWork, 
+    @EndUserText.label: 'Planned Work Unit'
+    ZXSH_C_ObjPGMaintOrderOpZ.OperationPlannedWorkUnit, 
+    @EndUserText.label: 'Order Type Name'
+    ZXSH_C_ObjPGMaintOrderOpZ.OrderTypeName, 
+    @EndUserText.label: 'Operation Duration'
+    @DefaultAggregation: #SUM
+    ZXSH_C_ObjPGMaintOrderOpZ.OperationDuration, 
+    @EndUserText.label: 'Duration Unit'
+    ZXSH_C_ObjPGMaintOrderOpZ.OperationDurationUnit
+
+} 
+
+cds view 3: 	
+
+name:		ZXSH_C_XMAINTPLANQ 
+desc:		query view extl orcl data, public consumption, maintenance
+syntax:
+
+@AbapCatalog.sqlViewName: 'ZXSH_CXMAINTPLQ'
+@AbapCatalog.compiler.compareFilter: false
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'query view orcl data, maintenance'
+@VDM.viewType: #CONSUMPTION
+@Analytics.query: true
+@ObjectModel.representativeKey: 'MaintenanceOrder'
+define view ZXSH_C_XMaintPlanQ as select distinct from ZXSH_I_XMaintPlanC
+{
+    // ZXSH_C_ObjPGMaintOrdZ, Z Copy of C_ObjPgMaintOrder
+    key MaintenanceOrder,
+    MaintenanceOrderType, 
+    MaintenanceOrderTypeName,
+    MaintenanceProcessingPhase, 
+    MaintenanceProcessingPhaseDesc,
+    TechnicalObjectLabel,
+    TechnicalObjectDescription,
+    MaintOrdBasicStartDate,
+    MaintOrdBasicEndDate,
+    CreationDate,
+    MaintenanceActivityType,
+    MaintenanceActivityTypeName, 
+    AssetLocation, 
+    AssetLocationName, 
+    PlantSection, 
+    PlantSectionPersonRespName, 
+    CityName, 
+    
+    // ZXSH_I_OXMaint, interface view based on external incidents data
+    pmordernumber,
+    ehscategory, 
+    ehsdatef,
+    ehsdescription, 
+    ehslocationname, 
+    ehsnumber,
+    ehstime, 
+    ehstype, 
+    ehsupervisorname,
+    ehscount,
+    ehstotalincidents,
+    ehstotalhazards,
+    ehsactionstofix,
+    ehsactionsimplementedontime, 
+    ehspercentagecompleted,
+    
+    // ZXSH_C_OBJPGMAINTORDEROPERATN    
+    MaintenanceOrderOperation, 
+    OperationDescription, 
+    WorkCenter, 
+    WorkCenterText, 
+    Plant, 
+    PlantName, 
+    OperationPlannedWorkUnit, 
+    OperationDuration, 
+    OperationDurationUnit,
+    
+    // ZXSH_I_MaintOrdCostPA, aggregated and pivoted data original to Z copy of I_MaintenanceOrderCost
+    P00EVCACActual,
+    P01EVCACActual,
+    P02EVCACActual,
+    P03EVCACActual,
+    P04EVCACActual,
+    P05EVCACActual,
+    P06EVCACActual,
+    P07EVCACActual,
+    P08EVCACActual,
+    P09EVCACActual,
+    P10EVCACActual,
+    P11EVCACActual,
+    P12EVCACActual,
+    P13EVCACActual,
+    P14EVCACActual,
+    P15EVCACActual,
+    P16EVCACActual,
+    P00EVCACPlan,
+    P01EVCACPlan,
+    P02EVCACPlan,
+    P03EVCACPlan,
+    P04EVCACPlan,
+    P05EVCACPlan,
+    P06EVCACPlan,
+    P07EVCACPlan,
+    P08EVCACPlan,
+    P09EVCACPlan,
+    P10EVCACPlan,
+    P11EVCACPlan,
+    P12EVCACPlan,
+    P13EVCACPlan,
+    P14EVCACPlan,
+    P15EVCACPlan,
+    P16EVCACPlan,
+    P00EVCACVariance,
+    P01EVCACVariance,
+    P02EVCACVariance,
+    P03EVCACVariance,
+    P04EVCACVariance,
+    P05EVCACVariance,
+    P06EVCACVariance,
+    P07EVCACVariance,
+    P08EVCACVariance,
+    P09EVCACVariance,
+    P10EVCACVariance,
+    P11EVCACVariance,
+    P12EVCACVariance,
+    P13EVCACVariance,
+    P14EVCACVariance,
+    P15EVCACVariance,
+    P16EVCACVariance,
+    P00EVCACVariancePct,
+    P01EVCACVariancePct,
+    P02EVCACVariancePct,
+    P03EVCACVariancePct,
+    P04EVCACVariancePct,
+    P05EVCACVariancePct,
+    P06EVCACVariancePct,
+    P07EVCACVariancePct,
+    P08EVCACVariancePct,
+    P09EVCACVariancePct,
+    P10EVCACVariancePct,
+    P11EVCACVariancePct,
+    P12EVCACVariancePct,
+    P13EVCACVariancePct,
+    P14EVCACVariancePct,
+    P15EVCACVariancePct,
+    P16EVCACVariancePct
+}
+
+
+ 
