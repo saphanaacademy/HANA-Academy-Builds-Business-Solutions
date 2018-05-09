@@ -1,0 +1,11 @@
+In this video we set up an S/4HANA user so that they have the roles to create KPI's, tiles, and analytic reports. The user is also assigned roles for the maintenance and maintenance planning S/4HANA data.
+
+Downloads and instructions for ABAP and HANA tools for Eclipse
+	https://tools.hana.ondemand.com/
+
+Business Roles for S/4HANA User
+	SAP_BR_ANALYTICS_SPECIALIST
+	SAP_BR_EMPLOYEE 
+	SAP_BR_MAINTENANCE_PLANNER
+	SAP_BR_MAINTENANCE_PLANNER_RSH
+	SAP_BR_MAINTENANCE_TECHNICIAN
