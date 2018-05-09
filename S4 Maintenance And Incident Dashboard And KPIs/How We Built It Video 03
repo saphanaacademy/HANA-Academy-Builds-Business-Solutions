@@ -1,0 +1,58 @@
+In this video we bring the external incident management data into the ABAP data dictionary. An External View is created in the ABAP perspective in Eclipse and then a Basic CDS view is created off of that External View.
+
+HANA Academy Course on CDS
+	https://www.youtube.com/playlist?list=PLkzo92owKnVxO-jWmOWugBv_9WQiq8wLc
+
+Create a new CDS view / data definition in your ABAP project using the following code substituting "SH" for your name space:
+
+cds view: 	orcl external data, maintenance
+
+name:		ZXSH_I_OMAINT
+desc:		ocrl external data, private interface view, maintenance	
+syntax:
+
+@AbapCatalog.sqlViewName: 'ZXSH_IOMAINT'
+@AbapCatalog.compiler.compareFilter: false
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'orcl external data, maintenance'
+@Analytics.dataCategory: #DIMENSION               
+@Analytics.dataExtraction.enabled: true 
+@VDM.viewType: #BASIC
+@ObjectModel.representativeKey: 'pmordernumber'
+
+define view ZXSH_I_OMaint as select from zvsh_omaint {
+    // zvsh_omaint, external view of incidents system in oracle
+    key pmordernumber, 
+    ehstype, 
+    ehsnumber,
+    ehsdescription, 
+    ehstime, 
+    ehsupervisorname,
+    ehslocationname, 
+    ehscategory, 
+    ehsdatef, 
+    1 as ehscount,
+    //count of categories: low medium high extreme
+    //separate counts for usage in s4 kpi modeler
+    case
+        when ehscategory = 'Low'
+        or ehscategory = 'Medium'
+            then 1
+            else 0
+        end as ehscatotherscount,
+    case
+        when ehscategory = 'High'
+            then 1
+            else 0
+        end as ehscathighcount,
+    case
+        when ehscategory = 'Extreme'
+            then 1
+            else 0
+        end as ehscatextremecount,                       
+    ehstotalincidents,
+    ehstotalhazards, 
+    ehsactionstofix,    
+    ehsactionsimplementedontime, 
+    ehspercentagecompleted    
+} 
