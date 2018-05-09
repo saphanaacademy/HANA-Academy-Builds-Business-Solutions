@@ -1,0 +1,244 @@
+In this video we'll build on the ZXSH_I_MaintenanceOrderCostZ view by first pivoting the planning data, and then creating formulas on that pivoted data in a second view.
+
+
+cds view 1: 	Maintenance Order Cost Data Pivot
+
+name:		ZXSH_I_MAINTORDCOSTP
+desc:		interface view, pivot data, maintenance order cost
+syntax:
+
+@AbapCatalog.sqlViewName: 'ZXSH_IMNTORDCSTP'
+@AbapCatalog.compiler.compareFilter: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Z Copy Maintenance Order Cost'
+@VDM.viewType: #BASIC
+
+define view ZXSH_I_MaintOrdCostP
+as select distinct from ZXSH_I_MaintenanceOrderCostZ {
+
+    // pivoted data original to Z copy of I_MaintenanceOrderCost
+    MaintenanceOrderInternalID, 
+    FiscalYear,
+    //ControllingValueType,  -- 1=Plan, 4=Actual    
+    case
+        when ControllingValueType = '01'
+            then Period00EarnedValInCtrlgArCrcy
+            else 0
+        end as P00EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period00EarnedValInCtrlgArCrcy
+            else 0
+        end as P00EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period01EarnedValInCtrlgArCrcy
+            else 0
+        end as P01EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period01EarnedValInCtrlgArCrcy
+            else 0
+        end as P01EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period02EarnedValInCtrlgArCrcy
+            else 0
+        end as P02EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period02EarnedValInCtrlgArCrcy
+            else 0
+        end as P02EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period03EarnedValInCtrlgArCrcy
+            else 0
+        end as P03EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period03EarnedValInCtrlgArCrcy
+            else 0
+        end as P03EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period04EarnedValInCtrlgArCrcy
+            else 0
+        end as P04EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period04EarnedValInCtrlgArCrcy
+            else 0
+        end as P04EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period05EarnedValInCtrlgArCrcy
+            else 0
+        end as P05EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period05EarnedValInCtrlgArCrcy
+            else 0
+        end as P05EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period06EarnedValInCtrlgArCrcy
+            else 0
+        end as P06EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period06EarnedValInCtrlgArCrcy
+            else 0
+        end as P06EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period07EarnedValInCtrlgArCrcy
+            else 0
+        end as P07EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period07EarnedValInCtrlgArCrcy
+            else 0
+        end as P07EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period08EarnedValInCtrlgArCrcy
+            else 0
+        end as P08EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period08EarnedValInCtrlgArCrcy
+            else 0
+        end as P08EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period09EarnedValInCtrlgArCrcy
+            else 0
+        end as P09EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period10EarnedValInCtrlgArCrcy
+            else 0
+        end as P09EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period10EarnedValInCtrlgArCrcy
+            else 0
+        end as P10EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period10EarnedValInCtrlgArCrcy
+            else 0
+        end as P10EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period11EarnedValInCtrlgArCrcy
+            else 0
+        end as P11EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period11EarnedValInCtrlgArCrcy
+            else 0
+        end as P11EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period12EarnedValInCtrlgArCrcy
+            else 0
+        end as P12EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period12EarnedValInCtrlgArCrcy
+            else 0
+        end as P12EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period13EarnedValInCtrlgArCrcy
+            else 0
+        end as P13EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period13EarnedValInCtrlgArCrcy
+            else 0
+        end as P13EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period14EarnedValInCtrlgArCrcy
+            else 0
+        end as P14EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period14EarnedValInCtrlgArCrcy
+            else 0
+        end as P14EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period15EarnedValInCtrlgArCrcy
+            else 0
+        end as P15EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period15EarnedValInCtrlgArCrcy
+            else 0
+        end as P15EVCACActual,
+    case
+        when ControllingValueType = '01'
+            then Period16EarnedValInCtrlgArCrcy
+            else 0
+        end as P16EVCACPlan,
+    case
+        when ControllingValueType = '04'
+            then Period16EarnedValInCtrlgArCrcy
+            else 0
+        end as P16EVCACActual      
+} 
+
+
+cds view 2: 	Maintenance Order Cost Data Pivot Aggregates
+
+name:		ZXSH_I_MAINTORDCOSTPA
+desc:		interface view, aggregate pivot data, maintenance order cost
+syntax:
+
+@AbapCatalog.sqlViewName: 'ZXSH_IMNTORDCSTA'
+@AbapCatalog.compiler.compareFilter: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'aggregate pivot data, maint order cost'
+define view ZXSH_I_MaintOrdCostPA as select from ZXSH_I_MaintOrdCostP {
+    MaintenanceOrderInternalID,
+    max(FiscalYear) as FiscalYear,
+    sum(P00EVCACActual) as P00EVCACActual, 
+    sum(P00EVCACPlan) as P00EVCACPlan, 
+    sum(P01EVCACActual) as P01EVCACActual, 
+    sum(P01EVCACPlan) as P01EVCACPlan, 
+    sum(P02EVCACActual) as P02EVCACActual, 
+    sum(P02EVCACPlan) as P02EVCACPlan, 
+    sum(P03EVCACActual) as P03EVCACActual, 
+    sum(P03EVCACPlan) as P03EVCACPlan, 
+    sum(P04EVCACActual) as P04EVCACActual, 
+    sum(P04EVCACPlan) as P04EVCACPlan, 
+    sum(P05EVCACActual) as P05EVCACActual, 
+    sum(P05EVCACPlan) as P05EVCACPlan, 
+    sum(P06EVCACActual) as P06EVCACActual, 
+    sum(P06EVCACPlan) as P06EVCACPlan, 
+    sum(P07EVCACActual) as P07EVCACActual, 
+    sum(P07EVCACPlan) as P07EVCACPlan, 
+    sum(P08EVCACActual) as P08EVCACActual, 
+    sum(P08EVCACPlan) as P08EVCACPlan, 
+    sum(P09EVCACActual) as P09EVCACActual, 
+    sum(P09EVCACPlan) as P09EVCACPlan, 
+    sum(P10EVCACActual) as P10EVCACActual, 
+    sum(P10EVCACPlan) as P10EVCACPlan, 
+    sum(P11EVCACActual) as P11EVCACActual, 
+    sum(P11EVCACPlan) as P11EVCACPlan, 
+    sum(P12EVCACActual) as P12EVCACActual, 
+    sum(P12EVCACPlan) as P12EVCACPlan, 
+    sum(P13EVCACActual) as P13EVCACActual, 
+    sum(P13EVCACPlan) as P13EVCACPlan, 
+    sum(P14EVCACActual) as P14EVCACActual, 
+    sum(P14EVCACPlan) as P14EVCACPlan, 
+    sum(P15EVCACActual) as P15EVCACActual, 
+    sum(P15EVCACPlan) as P15EVCACPlan, 
+    sum(P16EVCACActual) as P16EVCACActual, 
+    sum(P16EVCACPlan) as P16EVCACPlan
+} 
+group by MaintenanceOrderInternalID
