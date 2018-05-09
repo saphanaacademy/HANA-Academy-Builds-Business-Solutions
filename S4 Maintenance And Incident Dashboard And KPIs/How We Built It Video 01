@@ -1,4 +1,5 @@
-In this video we set up an S/4HANA user so that they have the roles to create KPI's, tiles, and analytic reports. The user is also assigned roles for the maintenance and maintenance planning S/4HANA data.
+In this video we set up an S/4HANA user so that they have the roles to create KPI's, tiles, and analytic reports. 
+The user is also assigned roles for the maintenance and maintenance planning S/4HANA data.
 
 Downloads and instructions for ABAP and HANA tools for Eclipse
 	https://tools.hana.ondemand.com/
