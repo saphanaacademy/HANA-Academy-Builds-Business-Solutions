@@ -1,0 +1,125 @@
+In this video we create 3 CDS views which are based on existing S/4HANA CDS views.
+
+Create 3 new CDS views / data definitions in your ABAP project using the following code substituting "SH" for your name space:
+
+cds view 1: 	Z Copy Maintenance Order Operation
+
+name:		ZXSH_C_OBJPGMAINTORDEROPZ
+desc:		Maintenace Order Operation	
+syntax:
+
+@AbapCatalog.sqlViewName: 'ZXSH_COPMNTOROPZ'
+@AbapCatalog.compiler.compareFilter: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@ClientHandling.algorithm: #SESSION_VARIABLE
+@EndUserText.label: 'Z Copy Maintenance Order Operation'
+@VDM.viewType: #CONSUMPTION
+
+define view ZXSH_C_ObjPGMaintOrderOpZ
+as select from C_ObjPgMaintOrderOperation {
+    // Z copy of C_ObjPgMaintOrderOperation 
+    key MaintenanceOrder, 
+    MaintenanceOrderOperation, 
+    OperationDescription, 
+    WorkCenter, 
+    WorkCenterText, 
+    Plant, 
+    PlantName, 
+    OperationPlannedWork, 
+    OperationPlannedWorkUnit, 
+    OperationPersonResponsible, 
+    OperationPersonRespName, 
+    MaintenanceOrderType, 
+    OrderTypeName, 
+    OperationDuration, 
+    OperationDurationUnit
+}
+
+cds view 2: 	Z Copy Maintenance Order
+
+name:		ZXSH_C_OBJPGMAINTORDZ
+desc:		Maintenance Order
+syntax:
+
+@AbapCatalog.sqlViewName: 'ZXSHCOBPGMNTORDZ'
+@AbapCatalog.compiler.compareFilter: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@ClientHandling.algorithm: #SESSION_VARIABLE
+@EndUserText.label: 'Z Copy Maintenance Order'
+@VDM.viewType: #CONSUMPTION
+
+define view ZXSH_C_ObjPGMaintOrdZ
+as select from C_ObjPgMaintOrder {
+      MaintenanceOrder,
+      MaintenanceOrderInternalID,
+      MaintenanceOrderDesc, 
+      MaintenanceOrderType,
+      MaintenanceOrderTypeName,
+      MaintenanceProcessingPhase, 
+      MaintenanceProcessingPhaseDesc, 
+      TechnicalObjectLabel,  
+      TechnicalObjectDescription, 
+      TechObjIsEquipOrFuncnlLocDesc,
+      MaintOrdBasicStartDate, 
+      MaintOrdBasicEndDate, 
+      MaintOrdSchedBasicStartDate, 
+      MaintOrdSchedBasicStartTime, 
+      MainWorkCenterPlantName,  
+      CreationDate,              
+      CreatedByUserDescription, 
+      MaintOrderPlanningCodeName,
+      MaintenanceActivityType, 
+      MaintenanceActivityTypeName,      
+      MaintenancePlant,
+      PlantName,
+      AssetLocation,
+      AssetLocationName,
+      PlantSection,
+      PlantSectionPersonRespName,
+      ResponsibleCostCenter,
+      CostCenterName,
+      ProfitCenter,
+      ProfitCenterName,
+      CityName
+}
+
+cds view 3: 	Z Copy Maintenance Order Cost
+
+name:		ZXSH_I_MAINTENANCEORDERCOSTZ
+desc:		Maintenace Order Cost
+syntax:
+
+@AbapCatalog.sqlViewName: 'ZXSH_IMNTORDCSTZ'
+@AbapCatalog.compiler.compareFilter: true
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@ClientHandling.algorithm: #SESSION_VARIABLE
+@EndUserText.label: 'Z Copy Maintenance Order Cost'
+@VDM.viewType: #BASIC
+
+define view ZXSH_I_MaintenanceOrderCostZ
+as select from I_MaintenanceOrderCost {
+    MaintenanceOrderInternalID, 
+    ControllingAreaCurrency, 
+    ControllingValueType, 
+    FiscalYear, 
+    ValueCategory,     
+    Period00EarnedValInCtrlgArCrcy, 
+    Period01EarnedValInCtrlgArCrcy, 
+    Period02EarnedValInCtrlgArCrcy, 
+    Period03EarnedValInCtrlgArCrcy, 
+    Period04EarnedValInCtrlgArCrcy, 
+    Period05EarnedValInCtrlgArCrcy, 
+    Period06EarnedValInCtrlgArCrcy, 
+    Period07EarnedValInCtrlgArCrcy, 
+    Period08EarnedValInCtrlgArCrcy, 
+    Period09EarnedValInCtrlgArCrcy, 
+    Period10EarnedValInCtrlgArCrcy, 
+    Period11EarnedValInCtrlgArCrcy, 
+    Period12EarnedValInCtrlgArCrcy, 
+    Period13EarnedValInCtrlgArCrcy, 
+    Period14EarnedValInCtrlgArCrcy, 
+    Period15EarnedValInCtrlgArCrcy, 
+    Period16EarnedValInCtrlgArCrcy, 
+    PlanningVersion, 
+    ResultCategory 
+}                  
