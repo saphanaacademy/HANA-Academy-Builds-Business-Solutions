@@ -1,1 +1,25 @@
+-- *** run code below as an admin user with the appropriate rights ***
 
+CREATE SCHEMA SHASCHEMA;
+
+CREATE USER SHAUSER PASSWORD ********;
+ALTER USER shauser DISABLE PASSWORD LIFETIME;
+
+GRANT MODELING TO SHAUSER;
+GRANT CONTENT_ADMIN TO SHAUSER;
+
+-- grant rights to your new user to the new development schema you created above
+GRANT CREATE ANY, DROP, SELECT, INSERT, UPDATE, DELETE, EXECUTE, INDEX 
+	ON SCHEMA "SHASCHEMA" TO SHAUSER WITH GRANT OPTION;
+
+-- enable native development on root package & schema for new user via repository
+GRANT EXECUTE ON REPOSITORY_REST TO shauser;
+GRANT REPO.READ, REPO.EDIT_NATIVE_OBJECTS, REPO.ACTIVATE_NATIVE_OBJECTS, REPO.MAINTAIN_NATIVE_PACKAGES 
+	ON "shauser" TO shauser;
+GRANT EXECUTE ON GRANT_ACTIVATED_ROLE TO shauser;
+GRANT EXECUTE ON REVOKE_ACTIVATED_ROLE TO shauser;
+
+-- *** run code below as the user you created above ***
+
+GRANT CREATE ANY, DROP, SELECT, INSERT, UPDATE, DELETE, EXECUTE, INDEX 
+	ON SCHEMA "SHAUSER" TO _SYS_REPO WITH GRANT OPTION;
