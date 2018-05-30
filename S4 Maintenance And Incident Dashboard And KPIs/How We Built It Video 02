@@ -1,12 +1,18 @@
 -- *** run code below as an admin user with the appropriate rights ***
 
+-- create schema that will be used for virtual tables
 CREATE SCHEMA SHASCHEMA;
 
+-- create technical user for HANA development
 CREATE USER SHAUSER PASSWORD ********;
 ALTER USER shauser DISABLE PASSWORD LIFETIME;
 
+-- grant roles and rights needed for modeling and SDA admin
 GRANT MODELING TO SHAUSER;
 GRANT CONTENT_ADMIN TO SHAUSER;
+GRANT CREATE REMOTE SOURCE TO SHAUSER;
+GRANT ADAPTER ADMIN TO SHAUSER;
+GRANT AGENT ADMIN TO SHAUSER;
 
 -- grant rights to your new user to the new development schema you created above
 GRANT CREATE ANY, DROP, SELECT, INSERT, UPDATE, DELETE, EXECUTE, INDEX 
@@ -21,5 +27,6 @@ GRANT EXECUTE ON REVOKE_ACTIVATED_ROLE TO shauser;
 
 -- *** run code below as the user you created above ***
 
+-- grant access to your new dev schema to the HANA repository user
 GRANT CREATE ANY, DROP, SELECT, INSERT, UPDATE, DELETE, EXECUTE, INDEX 
 	ON SCHEMA "SHAUSER" TO _SYS_REPO WITH GRANT OPTION;
