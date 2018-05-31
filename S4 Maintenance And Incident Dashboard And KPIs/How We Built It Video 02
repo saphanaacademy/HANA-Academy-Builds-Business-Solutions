@@ -1,5 +1,7 @@
 In this video we will create a HANA development user. This new technical user will be utilized to bring our external incident management data into the HANA database on our S/4HANA system. We will use smart data access and the data provisioning agent to create a virtual table in that technical user's new hana schema that is separate from our ERP schema.
 
+To find more information on creating users and assigning roles and rights, please see our channel at academy.saphana.com
+
 -- *** run code below as an admin user with the appropriate rights ***
 
 -- create technical user for HANA development...password must be changed upon first connection
