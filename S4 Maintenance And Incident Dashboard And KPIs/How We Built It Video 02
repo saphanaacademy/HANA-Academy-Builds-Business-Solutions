@@ -4,8 +4,7 @@
 CREATE SCHEMA SHASCHEMA;
 
 -- create technical user for HANA development
-CREATE USER SHAUSER PASSWORD ********;
-ALTER USER shauser DISABLE PASSWORD LIFETIME;
+CREATE USER SHAUSER PASSWORD Welcome1;
 
 -- grant roles and rights needed for modeling and SDA admin
 GRANT MODELING TO SHAUSER;
