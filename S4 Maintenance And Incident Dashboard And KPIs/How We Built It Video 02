@@ -3,7 +3,7 @@
 -- create schema that will be used for virtual tables
 CREATE SCHEMA SHASCHEMA;
 
--- create technical user for HANA development
+-- create technical user for HANA development...password must be changed upon first connection
 CREATE USER SHAUSER PASSWORD Welcome1;
 
 -- grant roles and rights needed for modeling and SDA admin
