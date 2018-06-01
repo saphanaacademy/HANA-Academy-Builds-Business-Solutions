@@ -27,7 +27,7 @@ GRANT EXECUTE ON REVOKE_ACTIVATED_ROLE TO shauser;
 
 ----------------------------------------
 --
--- run code below as the user you created above
+--  run code below as the user you created above
 --
 ----------------------------------------
 
