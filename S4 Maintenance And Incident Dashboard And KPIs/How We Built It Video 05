@@ -1,6 +1,5 @@
 In this video we'll build on the ZXSH_I_MaintenanceOrderCostZ view by first pivoting the planning data, and then creating formulas on that pivoted data in a second view.
 
-
 cds view 1: 	Maintenance Order Cost Data Pivot
 
 name:		ZXSH_I_MAINTORDCOSTP
