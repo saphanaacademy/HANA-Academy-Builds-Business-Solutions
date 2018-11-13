@@ -5,4 +5,4 @@ S/4 CDS is used to create a virtual data model and then we create an oData servi
 S/4 Smart Business Suite (KPI's, oAnalysis, Fiori template apps) and SAP Analytics Cloud are the end user tools for the combined data.
 
 In this particular case we use Oracle and bring the data into HANA via Smart Data Access. 
-Incident data on other database's could be used in the same way.
+Incident data on other databases could be used in the same way.
